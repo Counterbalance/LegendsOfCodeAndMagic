@@ -17,13 +17,9 @@ import org.apache.commons.cli.Options;
 
 import com.codingame.gameengine.runner.dto.GameResult;
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 
 public class CommandLineInterface {
-    static String JOHNNY_PICTURE 	= "https://static.codingame.com/servlet/fileservlet?id=14267188816585&format=ide_menu_avatar";
-	static String NMAHOUDE_PICTURE 	= "https://static.codingame.com/servlet/fileservlet?id=9701936828280&format=ide_menu_avatar";
-	static String EULERSCHE_PICTURE 	= "https://static.codingame.com/servlet/fileservlet?id=16390390383303&format=ide_menu_avatar";
-	static String KUTULU_PICTURE 	= "https://pbs.twimg.com/profile_images/3192634881/a727e18d3434bd5e99e6a39d6329a985.jpeg";
-
 
 	public static void main(String[] args) {
 		try {
@@ -32,8 +28,6 @@ public class CommandLineInterface {
 			options.addOption("h", false, "Print the help")
 			       .addOption("p1", true, "Required. Player 1 command line.")
 			       .addOption("p2", true, "Required. Player 2 command line.")
-			       .addOption("p3", true, "Player 3 command line.")
-			       .addOption("p4", true, "Player 4 command line.")
 			       .addOption("s", false, "Server mode")
 			       .addOption("l", true, "File output for logs")
 			       .addOption("d", true, "Referee initial data");
@@ -49,10 +43,6 @@ public class CommandLineInterface {
 
 	        MultiplayerGameRunner runner = new MultiplayerGameRunner();
 
-			Field getGameResult = GameRunner.class.getDeclaredField("gameResult");
-			getGameResult.setAccessible(true);
-			GameResult result = (GameResult) getGameResult.get(runner);
-
 			if (cmd.hasOption("d")) {
 				Properties p = new Properties();
 				p.load(new StringReader(cmd.getOptionValue("d")));
@@ -63,7 +53,7 @@ public class CommandLineInterface {
 
 			for (int i = 1; i <= 2; ++i) {
 				if (cmd.hasOption("p" + i)) {
-					runner.addAgent(cmd.getOptionValue("p" + i),cmd.getOptionValue("p" + i), JOHNNY_PICTURE);
+					runner.addAgent(cmd.getOptionValue("p" + i), cmd.getOptionValue("p" + i), null);
 					playerCount += 1;
 				}
 			}
@@ -71,20 +61,13 @@ public class CommandLineInterface {
 			if (cmd.hasOption("s")) {
 				runner.start();
 			} else {
-				Method initialize = GameRunner.class.getDeclaredMethod("initialize", Properties.class);
-				initialize.setAccessible(true);
-				initialize.invoke(runner, new Properties());
-
-				Method runAgents = GameRunner.class.getDeclaredMethod("runAgents");
-				runAgents.setAccessible(true);
-				runAgents.invoke(runner);
+				GameResult result = runner.simulate();
 
 				if (cmd.hasOption("l")) {
-					Method getJSONResult = GameRunner.class.getDeclaredMethod("getJSONResult");
-					getJSONResult.setAccessible(true);
+					String jsonResult = new Gson().toJson(result);
 
 					Files.asCharSink(Paths.get(cmd.getOptionValue("l")).toFile(), Charset.defaultCharset())
-							.write((String) getJSONResult.invoke(runner));
+							.write(jsonResult);
 				}
 
 				for (int i = 0; i < playerCount; ++i) {
