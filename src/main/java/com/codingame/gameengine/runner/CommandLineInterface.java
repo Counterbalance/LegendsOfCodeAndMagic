@@ -1,6 +1,8 @@
 package com.codingame.gameengine.runner;
 
 import com.codingame.gameengine.runner.MultiplayerGameRunner;
+
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -34,7 +36,7 @@ public class CommandLineInterface {
 			       .addOption("p4", true, "Player 4 command line.")
 			       .addOption("s", false, "Server mode")
 			       .addOption("l", true, "File output for logs")
-			       .addOption("d", false, "Referee initial data");
+			       .addOption("d", true, "Referee initial data");
 
 			CommandLine cmd = new DefaultParser().parse(options, args);
 
@@ -52,7 +54,9 @@ public class CommandLineInterface {
 			GameResult result = (GameResult) getGameResult.get(runner);
 
 			if (cmd.hasOption("d")) {
-				result.refereeInput = cmd.getOptionValue("d");
+				Properties p = new Properties();
+				p.load(new StringReader(cmd.getOptionValue("d")));
+				runner.setGameParameters(p);
 			}
 
 			int playerCount = 0;
