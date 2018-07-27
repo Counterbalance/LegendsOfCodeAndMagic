@@ -424,7 +424,7 @@
   "meta": {
     "app": "https://www.leshylabs.com/apps/sstool/",
     "version": "Leshy SpriteSheet Tool v0.8.4",
-    "image": "spritesheet.png",
+    "image": "../spritesheet.png",
     "size.png": {
       "w": 730,
       "h": 775
