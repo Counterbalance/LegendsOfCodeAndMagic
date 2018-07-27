@@ -24,6 +24,13 @@ public class EngineReferee {
     static final int ILLEGAL_ACTION_SUMMARY_LIMIT =3;
 
     public void refereeInit(MultiplayerGameManager<Player> gameManager) {
+        try {
+            String verbose = System.getProperty("verbose.level");
+            if (verbose!=null)
+                Constants.VERBOSE_LEVEL = Integer.parseInt(verbose);
+        } catch (NumberFormatException e ) {
+        }
+
         if (Constants.VERBOSE_LEVEL > 1) System.out.println("New game");
 
         RefereeParams params = new RefereeParams(gameManager);
