@@ -94,9 +94,16 @@ public class Card {
     this.oppHealthChange = Integer.parseInt(data[8]);
     this.cardDraw =        Integer.parseInt(data[9]);
 
-    this.comment = data.length >= 12 ? data[11] : null;
+    this.comment = ""; //data[11]; // comments deprecated as we are far from TESL in many cards
     generateText();
-    this.tooltipTextBase = data.length >= 11 ? data[10] : "";
+    try
+    {
+      this.tooltipTextBase = data[10];
+    }
+    catch (java.lang.ArrayIndexOutOfBoundsException e)
+    {
+      this.tooltipTextBase = "";
+    }
   }
 
   public void generateText()
