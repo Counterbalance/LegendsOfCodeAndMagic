@@ -2,6 +2,9 @@ package com.codingame.gameengine.runner;
 
 import com.codingame.gameengine.runner.MultiplayerGameRunner;
 
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -42,6 +45,7 @@ public class CommandLineInterface {
 			}
 
 	        MultiplayerGameRunner runner = new MultiplayerGameRunner();
+	        fixStdErr(runner);
 
 			if (cmd.hasOption("d")) {
 				Properties p = new Properties();
@@ -58,21 +62,24 @@ public class CommandLineInterface {
 				}
 			}
 
+			GameResult result;
+
 			if (cmd.hasOption("s")) {
 				runner.start();
+				result = runner.gameResult;
 			} else {
-				GameResult result = runner.simulate();
+				result = runner.simulate();
+			}
 
-				if (cmd.hasOption("l")) {
-					String jsonResult = new Gson().toJson(result);
+			for (int i = 0; i < playerCount; ++i) {
+				System.out.println(result.scores.get(i));
+			}
 
-					Files.asCharSink(Paths.get(cmd.getOptionValue("l")).toFile(), Charset.defaultCharset())
-							.write(jsonResult);
-				}
+			if (cmd.hasOption("l")) {
+				String jsonResult = new Gson().toJson(result);
 
-				for (int i = 0; i < playerCount; ++i) {
-					System.out.println(result.scores.get(i));
-				}
+				Files.asCharSink(Paths.get(cmd.getOptionValue("l")).toFile(), Charset.forName("UTF8"))
+						.write(jsonResult);
 
 				for (String line : result.uinput) {
 					System.out.println(line);
@@ -101,4 +108,19 @@ public class CommandLineInterface {
 		}
 	}
 
+	private static void fixStdErr(GameRunner runner) {
+		try {
+			Field getReferee = GameRunner.class.getDeclaredField("referee");
+			getReferee.setAccessible(true);
+			RefereeAgent refereeAgent = (RefereeAgent) getReferee.get(runner);
+			Field agentStderr = RefereeAgent.class.getDeclaredField("agentStderr");
+			agentStderr.setAccessible(true);
+			PipedOutputStream po = (PipedOutputStream) agentStderr.get(refereeAgent);
+			System.setErr(new PrintStream(po));
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }

@@ -122,7 +122,7 @@ public class EngineReferee {
     private boolean GameTurn(MultiplayerGameManager<Player> gameManager, Runnable render) {
         Player sdkplayer = gameManager.getPlayer(gamePlayer);
         gameManager.setFrameDuration(Constants.FRAME_DURATION_BATTLE);
-        
+
         if (state == null) // frame-only turn for showing the initial state
         {
             draft.ShuffleDecks();
@@ -157,16 +157,21 @@ public class EngineReferee {
 
             state.AdvanceState();
 
-            for (String line : state.getPlayersInput())
+            for (String line : state.getPlayersInput()) {
+                System.err.println("TURN " + gameTurn + " OUTPUT " + line);
                 sdkplayer.sendInputLine(line);
-            for (String line : state.getCardsInput())
+            }
+            for (String line : state.getCardsInput()) {
+                System.err.println("TURN " + gameTurn + " OUTPUT " + line);
                 sdkplayer.sendInputLine(line);
+            }
             sdkplayer.execute();
 
             try {
                 String output = sdkplayer.getOutputs().get(0);
                 actionsToHandle = Action.parseSequence(output);
                 if (Constants.VERBOSE_LEVEL > 2) System.out.println(" (returned " + actionsToHandle.size() + " actions)");
+                System.err.println("TURN " + gameTurn + " INPUT " + output);
             } catch (InvalidActionHard e) {
                 HandleError(gameManager, sdkplayer, sdkplayer.getNicknameToken() + ": " + e.getMessage());
             } catch (TimeoutException e) {
@@ -203,6 +208,14 @@ public class EngineReferee {
 
         if (actionsToHandle.isEmpty()) // player change
         {
+            // debug the game state for simulator validation:
+            //for (String line : state.getPlayersInput()) // this always prints maxMana :(
+            //    System.err.println("TURN " + gameTurn + " RESULT " + line);
+            for (Gamer player : new Gamer[]{ state.players[state.currentPlayer], state.players[1-state.currentPlayer]})
+                System.err.println("TURN " + gameTurn + " RESULT " + player.health + " " + player.currentMana + " " + player.deck.size() + " " + player.nextRune());
+            for (String line : state.getCardsInput())
+                System.err.println("TURN " + gameTurn + " RESULT " + line);
+
             gameTurn++;
             gamePlayer = (gamePlayer + 1) % 2;
         }
