@@ -33,10 +33,10 @@ public final class Constants
 
   public static final int MAX_CREATURES_IN_LINE = 6; // was 8
 
-  public static final int TIMELIMIT_FIRSTDRAFTTURN = 1000;
-  public static final int TIMELIMIT_DRAFTTURN = 100;
-  public static final int TIMELIMIT_FIRSTGAMETURN = 1000;
-  public static final int TIMELIMIT_GAMETURN = 100;
+  public static int TIMELIMIT_FIRSTDRAFTTURN = 1000;
+  public static int TIMELIMIT_DRAFTTURN = 100;
+  public static int TIMELIMIT_FIRSTGAMETURN = 1000;
+  public static int TIMELIMIT_GAMETURN = 100;
 
   public static final int PLAYER_TURNLIMIT = 50;
   public static final int MAX_TURNS_HARDLIMIT = (2*CARDS_IN_DECK + 2*CARDS_IN_DECK + 2*10) * 10;

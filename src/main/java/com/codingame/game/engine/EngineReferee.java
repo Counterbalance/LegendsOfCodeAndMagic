@@ -26,9 +26,17 @@ public class EngineReferee {
     public void refereeInit(MultiplayerGameManager<Player> gameManager) {
         try {
             String verbose = System.getProperty("verbose.level");
-            if (verbose!=null)
+            if (verbose != null)
                 Constants.VERBOSE_LEVEL = Integer.parseInt(verbose);
+
+            String timelimit = System.getProperty("timelimit");
+            if (timelimit != null)
+                Constants.TIMELIMIT_DRAFTTURN =
+                Constants.TIMELIMIT_GAMETURN =
+                Constants.TIMELIMIT_FIRSTDRAFTTURN =
+                Constants.TIMELIMIT_FIRSTGAMETURN = Integer.parseInt(timelimit);
         } catch (NumberFormatException e ) {
+            e.printStackTrace();
         }
 
         if (Constants.VERBOSE_LEVEL > 1) System.out.println("New game");
